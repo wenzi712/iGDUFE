@@ -1,7 +1,9 @@
 package net.suool.igdufe.activity;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -17,9 +19,11 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.TextureView;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -43,6 +47,7 @@ import net.suool.igdufe.service.GradeService;
 import net.suool.igdufe.service.LinkService;
 import net.suool.igdufe.service.StudentInfoService;
 import net.suool.igdufe.util.CommonUtil;
+import net.suool.igdufe.util.GlobalDataUtil;
 import net.suool.igdufe.util.HttpUtil;
 import net.suool.igdufe.util.LinkUtil;
 import net.suool.igdufe.util.SharedPreferenceUtil;
@@ -75,13 +80,16 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
 
-    private TextView userText;
+    private TextView userText, tvMoney, tvTips;
 
     public SharedPreferenceUtil sharedPreferenceUtil, util;
     private LinkService linkService;
     private StudentInfoService studentInfoService;
     private CourseService courseService;
     private GradeService gradeService;
+
+    private AlertDialog notifyDialog;
+    private View notifyView;
 
     private Toolbar toolbar;
 
@@ -118,28 +126,29 @@ public class MainActivity extends AppCompatActivity {
         super.onConfigurationChanged(newConfig);
         drawerToggle.onConfigurationChanged(newConfig);
     }
+
     @Override
     public void onBackPressed() {
         long secondTime = System.currentTimeMillis();
         drawerLayout.closeDrawers();
-            if (secondTime - firstTime > 2000) {
+        if (secondTime - firstTime > 2000) {
 //                Snackbar sb = Snackbar.make(fl_content, "再按一次退出", Snackbar.LENGTH_SHORT);
 //                sb.getView().setBackgroundColor(getResources().getColor(android.R.color.holo_blue_dark));
 //                sb.show();
-                Toast.makeText(this, "再按一次退出", Toast.LENGTH_SHORT).show();
-                firstTime = secondTime;
-            } else {
-                finish();
-            }
+            Toast.makeText(this, "再按一次退出", Toast.LENGTH_SHORT).show();
+            firstTime = secondTime;
+        } else {
+            finish();
+        }
     }
 
     private void setupFragment(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         // Fragment currentFragment = fragmentManager.findFragmentByTag(FRAGMENT_TAG);
         // if (true) {
-            fragmentManager.beginTransaction()
-                    .replace(R.id.content_frame, fragment, FRAGMENT_TAG)
-                    .commit();
+        fragmentManager.beginTransaction()
+                .replace(R.id.content_frame, fragment, FRAGMENT_TAG)
+                .commit();
         // }
         // currentFragment == null || !currentFragment.getClass().equals(fragment.getClass())
     }
@@ -148,14 +157,14 @@ public class MainActivity extends AppCompatActivity {
         drawerLayout.closeDrawers();
     }
 
-    private void initValue(){
+    private void initValue() {
         sharedPreferenceUtil = new SharedPreferenceUtil(getApplicationContext(), "accountInfo");
         util = new SharedPreferenceUtil(getApplicationContext(), "LinkInfo");
         MyApplication application = ((MyApplication) getApplicationContext());
         linkService = application.getLinkService();
         studentInfoService = application.getStudentInfoService();
         courseService = application.getCourseService();
-        gradeService= application.getGradeService();
+        gradeService = application.getGradeService();
 
         Calendar calendar = Calendar.getInstance();
         hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
@@ -166,16 +175,28 @@ public class MainActivity extends AppCompatActivity {
 //        }
     }
 
-    private void initEvent(){
+    private void initEvent() {
 
     }
 
-    private void initView(){
+    private void initView() {
         toolbar = (Toolbar) findViewById(R.id.toolbar);
         toolbar.setTitle("校园助手");
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         RecyclerView drawerOptions = (RecyclerView) findViewById(R.id.drawer_options);
         setSupportActionBar(toolbar);
+
+        LayoutInflater layoutInflater = LayoutInflater.from(getApplicationContext());
+        notifyView = layoutInflater.inflate(R.layout.notify_dialog, (ViewGroup) findViewById(R.id.notify_view));
+        tvMoney = (TextView) notifyView.findViewById(R.id.tvMoney);
+        tvTips = (TextView) notifyView.findViewById(R.id.tvTips);
+
+        tvMoney.setText("截止到昨天,您的饭卡余额还有"+GlobalDataUtil.blanace+"元.");
+        if (Float.parseFloat(GlobalDataUtil.blanace) <= 30) {
+            tvTips.setText("饭卡余额不足,请及时充值!");
+        }
+
+
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
         drawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
         drawerLayout.setStatusBarBackground(R.color.primary_dark);
@@ -198,7 +219,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view, int position) {
                 onDrawerMenuSelected(position);
                 Log.d("zafu", "You Clicked " + position);
-                switch (position){
+                switch (position) {
                     case 0:
                         break;
                     case 1:
@@ -222,8 +243,11 @@ public class MainActivity extends AppCompatActivity {
                     case 4:
                         break;
                     case 5:
+                        Intent mainToSet = new Intent(MainActivity.this, SettingActivity.class);
+                        startActivity(mainToSet);
                         break;
                     case 6:
+
                         break;
                     case 7:
                         Intent mainToAbout = new Intent(MainActivity.this, AboutActivity.class);
@@ -239,7 +263,28 @@ public class MainActivity extends AppCompatActivity {
         drawerOptions.setAdapter(adapter);
         drawerOptions.setHasFixedSize(true);
 
+        notifyDialog = new AlertDialog.Builder(MainActivity.this)
+                .setTitle("温馨提示:")
+                .setView(notifyView)
+                .setPositiveButton("确定", onclick)
+                .create();
+        notifyDialog.show();
+
+
     }
+
+    /**
+     * 选项的事件监听器
+     */
+    DialogInterface.OnClickListener onclick = new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+            // TODO Auto-generated method stub
+            Log.d("zafu", "选择了:" + GlobalDataUtil.yearSel + GlobalDataUtil.semesterSel);
+            notifyDialog.dismiss();
+        }
+
+    };
 
     private boolean getJWC() {
         final ProgressDialog dialog = CommonUtil.getProcessDialog(
@@ -305,9 +350,10 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this, "正在获取课表！！！");
         dialog.show();
 
-        String link = util.getKeyData("教务系统")+util.getKeyData(LinkUtil.XSGRKB);
+        // String link = util.getKeyData("教务系统")+util.getKeyData(LinkUtil.XSGRKB);
+        String link = DataSupport.where("title = ?", LinkUtil.XSGRKB).find(LinkNode.class).get(0).getLink();
         Log.d("zafu", "完整的重定向后的教务系统课程表地址：" + link);
-        if (! link.equals("")) {
+        if (!link.equals("")) {
             HttpUtil.URL_QUERY = link;
         } else {
             Toast.makeText(getApplicationContext(), "链接出现错误",
@@ -327,7 +373,7 @@ public class MainActivity extends AppCompatActivity {
                     resultContent = new String(arg2, "gb2312");
                     DataSupport.deleteAll(Course.class);
                     courseService.parseCourse(resultContent);
-                    Log.d("zafu","课程表内容：\n"+resultContent);
+                    Log.d("zafu", "课程表内容：\n" + resultContent);
                     //Document content = Jsoup.parse(resultContent);
 
                     Toast.makeText(getApplicationContext(), "课表获取成功！！！",

@@ -59,8 +59,8 @@ public class MySimpleAdapter extends SimpleAdapter {
 
             int pos = position%4;
 //            view.setBackground();
-            view.setBackgroundResource(bg[pos]);
-//            view.setBackgroundColor(colors[position % 2]);// 每隔item之间颜色不同
+//            view.setBackgroundResource(bg[pos]);
+            view.setBackgroundColor(colors[position % 2]);// 每隔item之间颜色不同
 
             return super.getView(position, view, parent);
         }

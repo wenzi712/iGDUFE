@@ -7,5 +7,6 @@ public class GlobalDataUtil {
     public static String studentID;
     public static String yearSel;
     public static String semesterSel;
+    public static String blanace;
 
 }

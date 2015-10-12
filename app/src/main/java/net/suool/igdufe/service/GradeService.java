@@ -18,6 +18,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.UnknownFormatConversionException;
 
 /**
  * Created by SuooL on 15/10/7.
@@ -89,8 +90,25 @@ public class GradeService {
             newGrade.setExamResult(row.child(9).text());
             newGrade.setFinalResult(row.child(11).text());
             try{
-                BigDecimal gpaGrade =  new  BigDecimal((Integer.parseInt(row.child(11).text())/10.0f-5.0f));
-                newGrade.setGPA(gpaGrade.divide(divNum, 2, BigDecimal.ROUND_HALF_UP).floatValue());
+                if (Integer.parseInt(row.child(11).text()) < 59 ){
+                    Log.d("zafu", "成绩是:"+ row.child(12).text()+ "分");
+                    try {
+                        int resu = Integer.parseInt(row.child(12).text());
+                        Log.d("zafu", ""+resu);
+                        newGrade.setGPA(0.0f);
+                    } catch (UnknownFormatConversionException e){
+                        newGrade.setFinalResult("需补考");
+                        newGrade.setGPA(0.0f);
+                    }
+
+                    newGrade.setFinalResult(row.child(12).text());
+                    newGrade.setGPA(1.0f);
+                } else{
+                    BigDecimal gpaGrade =  new  BigDecimal((Integer.parseInt(row.child(11).text()) / 10.0f - 5.0f));
+                    newGrade.setGPA(gpaGrade.divide(divNum, 2, BigDecimal.ROUND_HALF_UP).floatValue());
+                    newGrade.setFinalResult(row.child(11).text());
+                }
+
             } catch (NumberFormatException e){
                 newGrade.setGPA(1.0f);
             }

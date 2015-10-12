@@ -37,6 +37,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.litepal.crud.DataSupport;
 import org.litepal.tablemanager.Connector;
 
 import java.io.ByteArrayInputStream;
@@ -226,6 +227,7 @@ public class LoginActivity extends AppCompatActivity {
                 LoginActivity.this, "正在获取个人基本信息！！！");
         dialog.show();
 
+
         HttpUtil.getClient().addHeader("Referer", HttpUtil.URL_REFER);
 
         HttpUtil.get(HttpUtil.URL_MAIN, new AsyncHttpResponseHandler() {
@@ -233,6 +235,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int arg0, Header[] arg1, byte[] arg2) {
                 dialog.dismiss();
+
 
                 SharedPreferenceUtil util = new SharedPreferenceUtil(getApplicationContext(), "accountInfo");
                 String resultContent;
@@ -247,8 +250,12 @@ public class LoginActivity extends AppCompatActivity {
 
                     studentInfo.setName(info.get(0).text().split("，")[0]);
                     studentInfo.setStudentID(info.get(2).text().split("：")[1]);
+                    GlobalDataUtil.studentID =  info.get(2).text().split("：")[1];
                     studentInfo.setIdentity(info.get(3).text().split("：")[1]);
                     studentInfo.setDepartment(info.get(4).text().split("：")[1]);
+
+                    Elements notifyInfo = content.select("div#pf385"); // 获取表格
+
 
                     // studentInfoService.save(studentInfo);
 
@@ -277,6 +284,8 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         }
                     }
+
+
                     jump2Main();
                 } catch (UnsupportedEncodingException e) {
 
@@ -291,6 +300,30 @@ public class LoginActivity extends AppCompatActivity {
                 dialog.dismiss();
                 Toast.makeText(getApplicationContext(), "获取失败！！！",
                         Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        HttpUtil.post(HttpUtil.URL_MONEY, new AsyncHttpResponseHandler() {
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
+                try {
+                    String resultContent = new String(responseBody, "UTF-8");
+                    Log.d("zafu", resultContent);
+                    String money = resultContent.substring(resultContent.indexOf("是<span>")+7, resultContent.indexOf("<\\/span>元"));
+                    Log.d("zafu", "余额是!!" + money);
+                    StudentInfo studentInfo = new StudentInfo();
+                    GlobalDataUtil.blanace = money;
+                    studentInfo.setBalance(money);
+                    studentInfo.updateAll("studentID = ?", GlobalDataUtil.studentID);
+                } catch (UnsupportedEncodingException e){
+
+                }
+
+            }
+
+            @Override
+            public void onFailure(int statusCode, Header[] headers, byte[] responseBody, Throwable error) {
+
             }
         });
 

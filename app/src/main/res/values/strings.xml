@@ -5,7 +5,9 @@
     <string name="hello_world">Hello world!</string>
     <string name="hello">Hello Test!</string>
     <string name="action_settings">设置</string>
+    <string name="action_changeLogin">切换账号</string>
     <string name="action_login"> 点我你试试 </string>
+    <string name="action_update"> 检查更新 </string>
     <string name="title_activity_main">MainActivity</string>
 
     <string name="user_name">用户名</string>

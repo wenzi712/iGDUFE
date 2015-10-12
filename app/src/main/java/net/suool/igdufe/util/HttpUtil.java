@@ -29,6 +29,7 @@ public class HttpUtil {
     public static final String URL_REFER = "http://my.gdufe.edu.cn/";
     // 登录成功的首页
     public static String URL_MAIN = "http://my.gdufe.edu.cn/index.portal";
+    public static String URL_MONEY = "http://my.gdufe.edu.cn/pnull.portal?.f=f385&.pmn=view&action=informationCenterAjax&.ia=false&.pen=pe344";
     // 请求地址
     public static String URL_QUERY = "http://jwxt2.gdufe.edu.cn/QUERY";
     // 教务处跳转后的地址
