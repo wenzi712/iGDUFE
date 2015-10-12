@@ -8,6 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SimpleAdapter;
 
+import net.suool.igdufe.R;
+
 import java.util.List;
 import java.util.Map;
 
@@ -15,7 +17,11 @@ import java.util.Map;
  * Created by SuooL on 15/10/9.
  */
 public class MySimpleAdapter extends SimpleAdapter {
-        /**
+
+    private int[] bg={R.drawable.kb1,R.drawable.kb2,R.drawable.kb3,R.drawable.kb4};
+
+
+    /**
          * 构造方法，对实例域进行引用复制
          *
          * @param context
@@ -51,10 +57,10 @@ public class MySimpleAdapter extends SimpleAdapter {
 
             int[] colors = { Color.WHITE, Color.rgb(219, 238, 244) };//RGB颜色
 
-            int pos = position%4 + 1;
+            int pos = position%4;
 //            view.setBackground();
-
-            view.setBackgroundColor(colors[position % 2]);// 每隔item之间颜色不同
+            view.setBackgroundResource(bg[pos]);
+//            view.setBackgroundColor(colors[position % 2]);// 每隔item之间颜色不同
 
             return super.getView(position, view, parent);
         }
