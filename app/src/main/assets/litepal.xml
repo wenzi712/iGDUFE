@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<litepal>
+    <dbname value="gdufe"></dbname>
+    <version value="1"></version>
+    <list>
+        <mapping class="net.suool.igdufe.model.LinkNode"></mapping>
+        <mapping class="net.suool.igdufe.model.Course"></mapping>
+        <mapping class="net.suool.igdufe.model.StudentInfo"></mapping>
+        <mapping class="net.suool.igdufe.model.REResult"></mapping>
+        <mapping class="net.suool.igdufe.model.Grade"></mapping>
+    </list>
+</litepal>
