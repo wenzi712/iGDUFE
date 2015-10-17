@@ -3,13 +3,23 @@
 
 效果图如下:
 
+Splash 欢迎界面
+
 ![Splash 欢迎界面](http://7xlhko.com1.z0.glb.clouddn.com/QQ20151017-0@2x.png)
+
+登陆
 
 ![登陆界面](http://7xlhko.com1.z0.glb.clouddn.com/login.png)
 
+课程表界面
+
 ![课程表界面](http://7xlhko.com1.z0.glb.clouddn.com/kcb.png)
 
+侧滑栏菜单
+
 ![侧滑栏菜单](http://7xlhko.com1.z0.glb.clouddn.com/slidingmenu.png)
+
+成绩表及选择学期切换时间界面
 
 ![成绩表及选择学期切换时间界面](http://7xlhko.com1.z0.glb.clouddn.com/pickmenu.png)
 
