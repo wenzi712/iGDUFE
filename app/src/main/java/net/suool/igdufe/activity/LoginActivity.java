@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Handler;
+import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -25,9 +27,7 @@ import net.suool.igdufe.R;
 import net.suool.igdufe.application.MyApplication;
 import net.suool.igdufe.model.LinkNode;
 import net.suool.igdufe.model.StudentInfo;
-import net.suool.igdufe.service.CourseService;
 import net.suool.igdufe.service.LinkService;
-import net.suool.igdufe.service.StudentInfoService;
 import net.suool.igdufe.util.CommonUtil;
 import net.suool.igdufe.util.GlobalDataUtil;
 import net.suool.igdufe.util.HttpUtil;
@@ -37,12 +37,13 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.litepal.crud.DataSupport;
 import org.litepal.tablemanager.Connector;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import cz.msebera.android.httpclient.Header;
 
@@ -55,6 +56,27 @@ public class LoginActivity extends AppCompatActivity {
     private SQLiteDatabase db;
     private LinkService linkService;
     private SharedPreferenceUtil util;
+
+    private final Timer timer = new Timer();
+    private TimerTask taskMoney= new TimerTask() {
+        @Override
+        public void run() {
+            // TODO Auto-generated method stub
+            Message message = new Message();
+            message.what = 1;
+            handler.sendMessage(message);
+        }
+    };
+
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            // TODO Auto-generated method stub
+            // 要做的事情
+            jump2Main();
+            super.handleMessage(msg);
+        }
+    };
 
     private View.OnClickListener listener = new View.OnClickListener() {
 
@@ -86,6 +108,7 @@ public class LoginActivity extends AppCompatActivity {
         initEvent();// 事件初始化
         initCookie(this);// cookie初始化
         initDatabase();// 数据库初始化
+        getCode();
     }
 
     private void initValue() {
@@ -102,6 +125,7 @@ public class LoginActivity extends AppCompatActivity {
         secrectCode = (EditText) findViewById(R.id.secrectCode);
         username = (EditText) findViewById(R.id.username);
         password = (EditText) findViewById(R.id.password);
+        secrectCode = (EditText) findViewById(R.id.secrectCode);
         flashCode = (Button) findViewById(R.id.getCode);
         login = (Button) findViewById(R.id.login);
         code = (ImageView) findViewById(R.id.codeImage);
@@ -169,6 +193,7 @@ public class LoginActivity extends AppCompatActivity {
     private void login() {
         HttpUtil.Token1 = username.getText().toString().trim();
         HttpUtil.Token2 = password.getText().toString().trim();
+        HttpUtil.captchaField = secrectCode.getText().toString().trim();
         //需要时打开验证码注释
         //HttpUtil.txtSecretCode = secrectCode.getText().toString().trim();
         if (TextUtils.isEmpty(HttpUtil.Token1)
@@ -198,6 +223,7 @@ public class LoginActivity extends AppCompatActivity {
 
                             } else {
                                 Toast.makeText(getApplicationContext(), "账号或者密码错误！！！", Toast.LENGTH_SHORT).show();
+                                getCode();
                             }
                         } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
@@ -250,7 +276,7 @@ public class LoginActivity extends AppCompatActivity {
 
                     studentInfo.setName(info.get(0).text().split("，")[0]);
                     studentInfo.setStudentID(info.get(2).text().split("：")[1]);
-                    GlobalDataUtil.studentID =  info.get(2).text().split("：")[1];
+                    GlobalDataUtil.studentID = info.get(2).text().split("：")[1];
                     studentInfo.setIdentity(info.get(3).text().split("：")[1]);
                     studentInfo.setDepartment(info.get(4).text().split("：")[1]);
 
@@ -284,9 +310,6 @@ public class LoginActivity extends AppCompatActivity {
                             }
                         }
                     }
-
-
-                    jump2Main();
                 } catch (UnsupportedEncodingException e) {
 
                     e.printStackTrace();
@@ -307,15 +330,21 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
                 try {
+                    String money;
                     String resultContent = new String(responseBody, "UTF-8");
                     Log.d("zafu", resultContent);
-                    String money = resultContent.substring(resultContent.indexOf("是<span>")+7, resultContent.indexOf("<\\/span>元"));
+                    try {
+                        money = resultContent.substring(resultContent.indexOf("是<span>") + 7, resultContent.indexOf("<\\/span>元"));
+                    } catch (StringIndexOutOfBoundsException e){
+                        Log.d("zafu", resultContent);
+                        money = "23333";
+                    }
                     Log.d("zafu", "余额是!!" + money);
                     StudentInfo studentInfo = new StudentInfo();
                     GlobalDataUtil.blanace = money;
                     studentInfo.setBalance(money);
                     studentInfo.updateAll("studentID = ?", GlobalDataUtil.studentID);
-                } catch (UnsupportedEncodingException e){
+                } catch (UnsupportedEncodingException e) {
 
                 }
 
@@ -326,7 +355,7 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
-
+        timer.schedule(taskMoney, 2000);
     }
 
     /**
@@ -338,7 +367,6 @@ public class LoginActivity extends AppCompatActivity {
         HttpUtil.get(HttpUtil.URL_CODE, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int arg0, Header[] arg1, byte[] arg2) {
-
                 InputStream is = new ByteArrayInputStream(arg2);
                 Bitmap decodeStream = BitmapFactory.decodeStream(is);
                 code.setImageBitmap(decodeStream);

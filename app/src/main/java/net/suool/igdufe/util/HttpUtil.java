@@ -22,7 +22,7 @@ public class HttpUtil {
     // 基础地址
     public static final String URL_BASE = "http://jwxt2.gdufe.edu.cn:8080/";
     // 验证码地址
-    public static final String URL_CODE = "http://jwxt2.gdufe.edu.cn/CheckCode.aspx";
+    public static final String URL_CODE = "http://my.gdufe.edu.cn/captchaGenerate.portal";
     // 登陆地址
     public static final String URL_LOGIN = "http://my.gdufe.edu.cn/userPasswordValidate.portal";
     // refer
@@ -69,6 +69,7 @@ public class HttpUtil {
      */
     public static String Token1 = null;
     public static String Token2 = null;
+    public static String captchaField = null;
     public static String goTo = "http://my.gdufe.edu.cn/loginSuccess.portal";
     public static String gotoOnFail = "http://my.gdufe.edu.cn/loginFailure.portal";
 
@@ -211,6 +212,7 @@ public class HttpUtil {
         RequestParams params = new RequestParams();
         params.add("Login.Token1", Token1);
         params.add("Login.Token2", Token2);
+        params.add("captchaField", captchaField);
         params.add("goto", goTo);
         params.add("gotoOnFail", gotoOnFail);
         return params;

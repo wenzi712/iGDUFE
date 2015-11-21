@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private ActionBarDrawerToggle drawerToggle;
 
-    private TextView userText, tvMoney, tvTips;
+    private TextView  tvMoney, tvTips;
 
     public SharedPreferenceUtil sharedPreferenceUtil, util;
     private LinkService linkService;
@@ -192,9 +192,17 @@ public class MainActivity extends AppCompatActivity {
         tvTips = (TextView) notifyView.findViewById(R.id.tvTips);
 
         tvMoney.setText("截止到昨天,您的饭卡余额还有"+GlobalDataUtil.blanace+"元.");
-        if (Float.parseFloat(GlobalDataUtil.blanace) <= 30) {
-            tvTips.setText("饭卡余额不足,请及时充值!");
+        Log.d("zafu", GlobalDataUtil.blanace+"元.");
+        try {
+            if (Float.parseFloat(GlobalDataUtil.blanace) <= 30) {
+                tvTips.setText("饭卡余额不足,请及时充值!");
+            }
+            else if (Float.parseFloat(GlobalDataUtil.blanace) >=23333)
+                tvTips.setText("抱歉!饭卡余额暂时不能获取!");
+        } catch (NumberFormatException ne){
+            Log.d("zafu", GlobalDataUtil.blanace + "元");
         }
+
 
 
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
