@@ -74,6 +74,8 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="20dp"
             android:layout_marginLeft="20dp"
+            android:singleLine="true"
+            android:inputType="textNoSuggestions"
             android:hint="输入验证码" />
 
         <ImageView

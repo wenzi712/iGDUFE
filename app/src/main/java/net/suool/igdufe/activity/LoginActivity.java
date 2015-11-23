@@ -64,11 +64,31 @@ public class LoginActivity extends AppCompatActivity {
             // TODO Auto-generated method stub
             Message message = new Message();
             message.what = 1;
-            handler.sendMessage(message);
+            handlerMoney.sendMessage(message);
         }
     };
 
-    Handler handler = new Handler() {
+    private TimerTask taskJump = new TimerTask() {
+        @Override
+        public void run() {
+            // TODO Auto-generated method stub
+            Message message = new Message();
+            message.what = 1;
+            handlerJump.sendMessage(message);
+        }
+    };
+
+    Handler handlerMoney = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            // TODO Auto-generated method stub
+            // 要做的事情
+            getMoney();
+            super.handleMessage(msg);
+        }
+    };
+
+    Handler handlerJump = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             // TODO Auto-generated method stub
@@ -326,6 +346,10 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        timer.schedule(taskMoney, 2000);
+    }
+
+    private void getMoney(){
         HttpUtil.post(HttpUtil.URL_MONEY, new AsyncHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, byte[] responseBody) {
@@ -355,7 +379,8 @@ public class LoginActivity extends AppCompatActivity {
 
             }
         });
-        timer.schedule(taskMoney, 2000);
+
+        timer.schedule(taskJump, 1000);
     }
 
     /**
